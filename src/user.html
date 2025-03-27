@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Aprendizaje</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #2d2d3a;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            background-color: #1a1a24;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-items {
+            margin-top: 30px;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-item:hover {
+            background-color: #3d3d4a;
+        }
+
+        .nav-item.active {
+            background-color: #3d3d4a;
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .user-greeting {
+            background-color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        .tablero {
+            margin-bottom: 30px;
+        }
+
+        .course-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            width: 250px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .course-image {
+            width: 100%;
+            height: 150px;
+            border-radius: 5px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        .course-title {
+            color: #2d2d3a;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .course-status {
+            color: #4a90e2;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .action-icon {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .logout {
+            margin-top: auto;
+            padding: 12px 15px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        /* Estilos para el detalle del curso */
+        .course-details {
+            display: none;
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+        }
+
+        .course-details h2 {
+            margin-bottom: 20px;
+        }
+
+        .course-details ul {
+            list-style: none;
+        }
+
+        .course-details ul li {
+            margin-bottom: 15px;
+        }
+
+        .course-details ul li h4 {
+            margin-bottom: 5px;
+            font-size: 1.2em;
+        }
+
+        .course-details ul li a {
+            color: #4a90e2;
+        }
+
+        iframe {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            GM
+        </div>
+        <div class="nav-items">
+            <div class="nav-item active">
+                <i>📚</i>
+                Tutor online
+            </div>
+            <div class="nav-item">
+                <i>📊</i>
+                Mediciones
+            </div>
+            <div class="nav-item">
+                <i>🎓</i>
+                Certificados
+            </div>
+        </div>
+        <div class="logout">
+            <a href="#">Cerrar Sesión</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Tablero</h1>
+            <div class="user-greeting">
+                Hola, {{ request.user.username }}
+                <img src="/api/placeholder/30/30" alt="Usuario" class="user-avatar">
+            </div>
+        </div>
+
+        <div class="tablero">
+            {% if compras %}
+                {% for compra in compras %}
+                    <div class="course-card" data-curso-id="{{ compra.curso.id }}">
+                        <img src="/api/placeholder/250/150" alt="Curso" class="course-image">
+                        <div class="course-title">{{ compra.curso.titulo }}</div>
+                        <div class="course-status">SIEMPRE DISPONIBLE</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No has comprado ningún curso aún.</p>
+            {% endif %}
+        </div>
+
+        <!-- Sección para los detalles del curso -->
+        <div class="course-details" id="course-details">
+            <h2 id="detalle-titulo"></h2>
+            <p id="detalle-descripcion"></p>
+            <h3>Contenido del Curso</h3>
+            <ul id="detalle-contenidos"></ul>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.course-card').click(function() {
+                var cursoId = $(this).data('curso-id');
+
+                $.ajax({
+                    url: '',  // Cambia la URL si es necesario
+                    type: 'GET',
+                    data: {
+                        curso_id: cursoId
+                    },
+                    success: function(data) {
+                        // Actualizamos los detalles del curso
+                        $('#detalle-titulo').text(data.titulo);
+                        $('#detalle-descripcion').text(data.descripcion);
+                        $('#detalle-contenidos').empty();
+
+                        data.contenidos.forEach(function(contenido) {
+                            var item = '<li><h4>' + contenido.titulo + '</h4>';
+                            item += '<p>' + contenido.descripcion + '</p>';
+
+                            if (contenido.archivo) {
+                                item += '<a href="' + contenido.archivo + '" download>Descargar Archivo</a><br>';
+                            }
+
+                            if (contenido.video_url) {
+                                item += '<iframe width="560" height="315" src="' + contenido.video_url + '" frameborder="0" allowfullscreen></iframe>';
+                            }
+
+                            item += '</li>';
+                            $('#detalle-contenidos').append(item);
+                        });
+
+                        // Mostrar los detalles
+                        $('#course-details').slideDown();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
